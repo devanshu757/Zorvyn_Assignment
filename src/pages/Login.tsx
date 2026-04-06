@@ -118,35 +118,31 @@ export default function Login({ onLogin }: Props) {
     <div className={`h-screen flex ${theme === 'dark' ? 'dark' : ''}`}>
 
       {/* ── Left panel ─────────────────────────────── */}
-      <div className="hidden lg:flex lg:w-[52%] xl:w-[55%] relative overflow-hidden flex-col">
-        {/* Gradient bg — deep navy blue */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#050e1d] via-[#071828] to-[#0a2040]" />
+      <div className="hidden lg:flex lg:w-[52%] xl:w-[55%] relative flex-col h-screen">
+        {/* Decorative background — clipped to panel */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#050e1d] via-[#071828] to-[#0a2040]" />
+          <div className="absolute inset-0 opacity-40"
+            style={{ background: 'radial-gradient(ellipse at 30% 50%, rgba(37,99,235,0.25) 0%, transparent 65%)' }} />
+          <div className="absolute inset-0 opacity-[0.04]"
+            style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.8) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.8) 1px,transparent 1px)', backgroundSize: '44px 44px' }} />
+          <div className="absolute -top-20 -left-10 w-96 h-96 bg-brand-600/20 rounded-full blur-3xl" />
+          <div className="absolute bottom-0 right-0 w-[28rem] h-[28rem] bg-brand-800/25 rounded-full blur-3xl translate-x-1/3 translate-y-1/3" />
+          <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-sky-600/10 rounded-full blur-3xl -translate-x-1/2 -translate-y-1/2" />
+        </div>
 
-        {/* Radial glow center */}
-        <div className="absolute inset-0 opacity-40"
-          style={{ background: 'radial-gradient(ellipse at 30% 50%, rgba(37,99,235,0.25) 0%, transparent 65%)' }} />
-
-        {/* Grid overlay */}
-        <div className="absolute inset-0 opacity-[0.04]"
-          style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,.8) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.8) 1px,transparent 1px)', backgroundSize: '44px 44px' }} />
-
-        {/* Glow blobs */}
-        <div className="absolute -top-20 -left-10 w-96 h-96 bg-brand-600/20 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-[28rem] h-[28rem] bg-brand-800/25 rounded-full blur-3xl pointer-events-none translate-x-1/3 translate-y-1/3" />
-        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-sky-600/10 rounded-full blur-3xl pointer-events-none -translate-x-1/2 -translate-y-1/2" />
-
-        <div className="relative z-10 flex flex-col flex-1 px-12 py-10">
-          {/* Logo */}
-          <div className="flex items-center gap-3">
+        <div className="relative z-10 flex flex-col px-12 py-10 h-full overflow-y-auto">
+          {/* ── TOP: Logo ── */}
+          <div className="flex items-center gap-3 flex-shrink-0">
             <div className="w-10 h-10 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center shadow-lg">
               <LogoMark size={20} />
             </div>
             <span className="text-xl font-bold text-white tracking-tight">FinTrack</span>
           </div>
 
-          {/* Hero */}
-          <div className="mt-auto mb-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 border border-white/20 rounded-full text-xs text-brand-200 font-medium mb-5">
+          {/* ── MIDDLE: Hero (vertically centered in remaining space) ── */}
+          <div className="flex flex-col justify-center flex-1 py-8">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white/10 border border-white/20 rounded-full text-xs text-brand-200 font-medium mb-5 w-fit">
               <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
               Smart personal finance dashboard
             </div>
@@ -157,8 +153,6 @@ export default function Login({ onLogin }: Props) {
             <p className="text-brand-200/80 text-base mt-4 max-w-sm leading-relaxed">
               Track every dollar, optimize every budget, and hit your savings goals — in one beautifully designed dashboard.
             </p>
-
-            {/* Stats */}
             <div className="flex items-center gap-6 mt-7">
               {STATS.map(s => (
                 <div key={s.label}>
@@ -169,20 +163,21 @@ export default function Login({ onLogin }: Props) {
             </div>
           </div>
 
-          {/* Feature grid */}
-          <div className="grid grid-cols-2 gap-3 mb-8">
-            {FEATURES.map(f => (
-              <div key={f.title} className="flex items-start gap-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-3.5 py-3 transition-colors">
-                <span className="text-lg mt-0.5 flex-shrink-0">{f.icon}</span>
-                <div>
-                  <p className="text-xs font-semibold text-white">{f.title}</p>
-                  <p className="text-[11px] text-brand-200/60 mt-0.5 leading-relaxed">{f.desc}</p>
+          {/* ── BOTTOM: Feature grid + copyright ── */}
+          <div className="flex-shrink-0">
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              {FEATURES.map(f => (
+                <div key={f.title} className="flex items-start gap-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl px-3.5 py-3 transition-colors">
+                  <span className="text-lg mt-0.5 flex-shrink-0">{f.icon}</span>
+                  <div>
+                    <p className="text-xs font-semibold text-white">{f.title}</p>
+                    <p className="text-[11px] text-brand-200/60 mt-0.5 leading-relaxed">{f.desc}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            <p className="text-[11px] text-brand-300/40">© 2026 FinTrack · All data stored locally in your browser</p>
           </div>
-
-          <p className="text-[11px] text-brand-300/40">© 2026 FinTrack · All data stored locally in your browser</p>
         </div>
       </div>
 
