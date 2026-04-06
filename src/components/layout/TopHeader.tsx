@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import {
   Menu, Bell, Search, X, Check, AlertTriangle, Info,
-  ChevronRight,
+  ChevronRight, LayoutDashboard, ArrowLeftRight, Wallet, Receipt,
+  PiggyBank, Target, BarChart3, Lightbulb, TrendingUp,
+  Settings as SettingsIcon, User,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { Page } from '../../types';
@@ -106,74 +108,139 @@ function NotificationPanel({
 }
 
 /* ── Quick Search Bar ─────────────────────────────────── */
+const SEARCH_SECTIONS: { label: string; items: { label: string; page: Page; icon: React.ElementType }[] }[] = [
+  {
+    label: 'Overview',
+    items: [{ label: 'Dashboard', page: 'dashboard', icon: LayoutDashboard }],
+  },
+  {
+    label: 'Finance',
+    items: [
+      { label: 'Transactions', page: 'transactions', icon: ArrowLeftRight },
+      { label: 'Accounts',     page: 'accounts',     icon: Wallet },
+      { label: 'Bills',        page: 'bills',        icon: Receipt },
+    ],
+  },
+  {
+    label: 'Planning',
+    items: [
+      { label: 'Budgets', page: 'budgets', icon: PiggyBank },
+      { label: 'Goals',   page: 'goals',   icon: Target },
+    ],
+  },
+  {
+    label: 'Analytics',
+    items: [
+      { label: 'Reports',   page: 'reports',   icon: BarChart3 },
+      { label: 'Insights',  page: 'insights',  icon: Lightbulb },
+      { label: 'Analytics', page: 'analytics', icon: TrendingUp },
+    ],
+  },
+  {
+    label: 'Account',
+    items: [
+      { label: 'Settings', page: 'settings', icon: SettingsIcon },
+      { label: 'Profile',  page: 'profile',  icon: User },
+    ],
+  },
+];
+
 function QuickSearch({ onClose }: { onClose: () => void }) {
   const { setPage } = useApp();
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const pages: { label: string; page: Page; hint: string }[] = [
-    { label: 'Dashboard',    page: 'dashboard',    hint: 'Overview' },
-    { label: 'Transactions', page: 'transactions', hint: 'Finance' },
-    { label: 'Accounts',     page: 'accounts',     hint: 'Finance' },
-    { label: 'Bills',        page: 'bills',        hint: 'Finance' },
-    { label: 'Budgets',      page: 'budgets',      hint: 'Planning' },
-    { label: 'Goals',        page: 'goals',        hint: 'Planning' },
-    { label: 'Reports',      page: 'reports',      hint: 'Analytics' },
-    { label: 'Insights',     page: 'insights',     hint: 'Analytics' },
-    { label: 'Analytics',    page: 'analytics',    hint: 'Analytics' },
-    { label: 'Settings',     page: 'settings',     hint: 'Account' },
-    { label: 'Profile',      page: 'profile',      hint: 'Account' },
-  ];
-
-  const filtered = query.trim()
-    ? pages.filter(p => p.label.toLowerCase().includes(query.toLowerCase()))
-    : pages;
+  const allItems = SEARCH_SECTIONS.flatMap(s => s.items);
+  const displaySections = query.trim()
+    ? [{ label: 'Results', items: allItems.filter(p => p.label.toLowerCase().includes(query.toLowerCase())) }]
+    : SEARCH_SECTIONS;
 
   useEffect(() => { inputRef.current?.focus(); }, []);
-
   function go(page: Page) { setPage(page); onClose(); }
 
+  const hasResults = displaySections.some(s => s.items.length > 0);
+
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-20 px-4 animate-fade-in"
-         onClick={onClose}>
-      <div className="w-full max-w-lg bg-white dark:bg-navy-900 rounded-2xl shadow-modal
-                      border border-zinc-200 dark:border-navy-700 overflow-hidden animate-slide-up"
-           onClick={e => e.stopPropagation()}>
-        {/* Input */}
+    <div
+      className="fixed inset-0 z-[100] flex items-start justify-center pt-[12vh] px-4 bg-black/50 backdrop-blur-sm animate-fade-in"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md bg-white dark:bg-navy-900 rounded-2xl shadow-modal border border-zinc-200/80 dark:border-navy-700 overflow-hidden animate-slide-up"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Input row */}
         <div className="flex items-center gap-3 px-4 py-3.5 border-b border-zinc-100 dark:border-navy-750">
           <Search size={16} className="text-zinc-400 flex-shrink-0" />
           <input
             ref={inputRef}
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="Search pages…"
-            className="flex-1 bg-transparent text-sm text-zinc-900 dark:text-white placeholder-zinc-400 outline-none"
+            placeholder="Navigate to a page…"
+            className="flex-1 bg-transparent text-sm text-zinc-900 dark:text-white placeholder-zinc-400 dark:placeholder-zinc-500 outline-none"
           />
-          <kbd className="hidden sm:flex items-center gap-1 px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-[10px] text-zinc-400 font-mono">
-            Esc
-          </kbd>
+          {query && (
+            <button
+              onClick={() => setQuery('')}
+              className="p-1 rounded-md text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              aria-label="Clear search"
+            >
+              <X size={13} />
+            </button>
+          )}
         </div>
 
-        {/* Results */}
-        <div className="max-h-64 overflow-y-auto p-2">
-          {filtered.length === 0 ? (
-            <p className="text-center text-sm text-zinc-400 py-6">No pages found</p>
+        {/* Results list */}
+        <div className="max-h-80 overflow-y-auto p-2">
+          {!hasResults ? (
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <Search size={22} className="text-zinc-300 dark:text-zinc-600 mb-2" />
+              <p className="text-sm font-medium text-zinc-500">No results for "{query}"</p>
+              <p className="text-xs text-zinc-400 mt-0.5">Try a different page name</p>
+            </div>
           ) : (
-            filtered.map(p => (
-              <button
-                key={p.page}
-                onClick={() => go(p.page)}
-                className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl
-                           hover:bg-zinc-50 dark:hover:bg-zinc-800 text-left transition-colors group"
-              >
-                <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{p.label}</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-zinc-400">{p.hint}</span>
-                  <ChevronRight size={13} className="text-zinc-300 group-hover:text-brand-500 transition-colors" />
+            displaySections.map(section =>
+              section.items.length > 0 && (
+                <div key={section.label} className="mb-1 last:mb-0">
+                  <p className="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+                    {section.label}
+                  </p>
+                  {section.items.map(p => {
+                    const Icon = p.icon;
+                    return (
+                      <button
+                        key={p.page}
+                        onClick={() => go(p.page)}
+                        className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-zinc-50 dark:hover:bg-navy-800 text-left transition-colors group"
+                      >
+                        <div className="w-7 h-7 rounded-lg bg-zinc-100 dark:bg-navy-750 flex items-center justify-center flex-shrink-0 group-hover:bg-brand-50 dark:group-hover:bg-brand-900/30 transition-colors">
+                          <Icon size={14} className="text-zinc-500 dark:text-zinc-400 group-hover:text-brand-600 dark:group-hover:text-brand-400 transition-colors" />
+                        </div>
+                        <span className="flex-1 text-sm font-medium text-zinc-800 dark:text-zinc-200">{p.label}</span>
+                        <ChevronRight size={13} className="text-zinc-300 dark:text-zinc-600 group-hover:text-brand-500 transition-colors flex-shrink-0" />
+                      </button>
+                    );
+                  })}
                 </div>
-              </button>
-            ))
+              )
+            )
           )}
+        </div>
+
+        {/* Footer hints */}
+        <div className="flex items-center gap-5 px-4 py-2.5 border-t border-zinc-100 dark:border-navy-750 bg-zinc-50 dark:bg-navy-950/60">
+          <div className="flex items-center gap-1.5">
+            <kbd className="px-1.5 py-0.5 bg-white dark:bg-navy-800 border border-zinc-200 dark:border-navy-700 rounded text-[10px] text-zinc-500 font-mono shadow-sm">↵</kbd>
+            <span className="text-[11px] text-zinc-400">to navigate</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <kbd className="px-1.5 py-0.5 bg-white dark:bg-navy-800 border border-zinc-200 dark:border-navy-700 rounded text-[10px] text-zinc-500 font-mono shadow-sm">Esc</kbd>
+            <span className="text-[11px] text-zinc-400">to close</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <kbd className="px-1.5 py-0.5 bg-white dark:bg-navy-800 border border-zinc-200 dark:border-navy-700 rounded text-[10px] text-zinc-500 font-mono shadow-sm">⌘K</kbd>
+            <span className="text-[11px] text-zinc-400">to toggle</span>
+          </div>
         </div>
       </div>
     </div>

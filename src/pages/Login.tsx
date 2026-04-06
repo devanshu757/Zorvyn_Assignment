@@ -6,8 +6,8 @@ import { Role } from '../types';
 interface StoredUser { name: string; email: string; password: string; role: Role }
 
 const SEED_USERS: StoredUser[] = [
-  { name: 'Jordan Lee',  email: 'admin@fintrack.app',  password: 'Admin@123',  role: 'admin'  },
-  { name: 'Alex Morgan', email: 'viewer@fintrack.app', password: 'Viewer@123', role: 'viewer' },
+  { name: 'Dev',        email: 'admin@fintrack.app',  password: 'Admin@123',  role: 'admin'  },
+  { name: 'Jay',         email: 'viewer@fintrack.app', password: 'Viewer@123', role: 'viewer' },
 ];
 
 function getUsers(): StoredUser[] {
@@ -115,7 +115,7 @@ export default function Login({ onLogin }: Props) {
   const labelCls = `label-sm`;
 
   return (
-    <div className={`min-h-screen flex ${theme === 'dark' ? 'dark' : ''}`}>
+    <div className={`h-screen flex ${theme === 'dark' ? 'dark' : ''}`}>
 
       {/* ── Left panel ─────────────────────────────── */}
       <div className="hidden lg:flex lg:w-[52%] xl:w-[55%] relative overflow-hidden flex-col">

@@ -1,10 +1,13 @@
 import { Transaction, MonthlyData, CategoryStat, SummaryStats, FilterState, SortState } from '../types';
 import { CATEGORY_COLORS } from '../data/mockData';
 
-export function formatCurrency(amount: number): string {
+let _activeCurrency = 'USD';
+export function setActiveCurrency(c: string) { _activeCurrency = c; }
+
+export function formatCurrency(amount: number, currency?: string): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD',
+    currency: currency ?? _activeCurrency,
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);

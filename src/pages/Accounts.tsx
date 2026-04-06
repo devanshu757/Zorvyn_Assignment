@@ -143,30 +143,31 @@ function NetWorthBanner({ accounts }: { accounts: ReturnType<typeof useApp>['acc
   const netWorth         = totalAssets - totalLiabilities;
 
   return (
-    <div className="bg-gradient-to-br from-[#0c152a] via-[#1d4ed8] to-[#93c5fd] dark:from-[#070b19] dark:via-[#1e3057] dark:to-[#2c4578] rounded-3xl p-8 text-white relative overflow-hidden shadow-glow-brand transition-transform hover:scale-[1.01] duration-300 group">
-      {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 dark:bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 transition-all duration-700 group-hover:translate-x-1/4" />
-      <div className="absolute bottom-0 right-24 w-40 h-40 bg-brand-400/20 dark:bg-brand-500/10 rounded-full blur-2xl translate-y-1/3 transition-all duration-700 group-hover:-translate-y-1/4" />
+    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-700 dark:to-indigo-700 rounded-2xl p-5 text-white relative overflow-hidden">
+      <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
 
-      <div className="relative z-10">
-        <p className="text-brand-200 text-sm font-medium mb-1">Total Net Worth</p>
-        <p className="text-5xl font-black tabular mb-1 tracking-tight drop-shadow-md">{formatCurrency(netWorth)}</p>
-        <p className="text-brand-100 dark:text-brand-200/70 text-sm font-medium">Across {accounts.length} account{accounts.length !== 1 ? 's' : ''}</p>
+      <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <p className="text-blue-200 text-xs font-medium mb-0.5">Total Net Worth</p>
+          <p className="text-3xl font-black tabular tracking-tight">{formatCurrency(netWorth)}</p>
+          <p className="text-blue-100/70 text-xs mt-0.5">Across {accounts.length} account{accounts.length !== 1 ? 's' : ''}</p>
+        </div>
 
-        <div className="grid grid-cols-2 gap-8 mt-7 pt-6 border-t border-white/20 dark:border-white/10 backdrop-blur-sm">
+        <div className="flex items-center gap-6 sm:gap-8 sm:pr-4">
           <div>
-            <div className="flex items-center gap-1.5 mb-1">
-              <ArrowUpRight size={14} className="text-emerald-300" />
-              <p className="text-xs font-semibold text-emerald-200">Total Assets</p>
+            <div className="flex items-center gap-1 mb-0.5">
+              <ArrowUpRight size={12} className="text-emerald-300" />
+              <p className="text-[11px] font-semibold text-emerald-200">Total Assets</p>
             </div>
-            <p className="text-xl font-bold tabular">{formatCurrency(totalAssets)}</p>
+            <p className="text-base font-bold tabular">{formatCurrency(totalAssets)}</p>
           </div>
+          <div className="w-px h-8 bg-white/20" />
           <div>
-            <div className="flex items-center gap-1.5 mb-1">
-              <ArrowDownRight size={14} className="text-rose-300" />
-              <p className="text-xs font-semibold text-rose-200">Liabilities</p>
+            <div className="flex items-center gap-1 mb-0.5">
+              <ArrowDownRight size={12} className="text-rose-300" />
+              <p className="text-[11px] font-semibold text-rose-200">Liabilities</p>
             </div>
-            <p className="text-xl font-bold tabular">{formatCurrency(totalLiabilities)}</p>
+            <p className="text-base font-bold tabular">{formatCurrency(totalLiabilities)}</p>
           </div>
         </div>
       </div>

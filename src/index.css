@@ -30,7 +30,7 @@
   }
 
   body {
-    @apply bg-surface-secondary text-zinc-900 transition-colors duration-250 dark:bg-[#070b19] dark:text-锌-100;
+    @apply bg-surface-secondary text-zinc-900 transition-colors duration-250 dark:bg-[#070b19] dark:text-zinc-100;
   }
   
   .dark body {

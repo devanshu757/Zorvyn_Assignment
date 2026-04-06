@@ -141,10 +141,10 @@ export default function Sidebar({
       <div className={`flex items-center flex-shrink-0 border-b border-zinc-100 dark:border-navy-750
                        ${(collapsed && !isMobile) ? 'h-[52px] justify-center px-2' : 'h-[52px] px-4 gap-2.5'}`}>
         <button onClick={() => navigate('dashboard')} className="flex items-center gap-2.5 min-w-0 group/logo">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-brand-700 via-brand-600 to-brand-400
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-700 via-brand-600 to-brand-400
                           flex items-center justify-center flex-shrink-0
-                          shadow-lg shadow-brand-900/20 group-hover/logo:scale-110 group-hover/logo:shadow-glow-brand transition-all duration-300">
-            <LogoIcon size={18} />
+                          shadow-md shadow-brand-900/20 group-hover/logo:scale-110 group-hover/logo:shadow-glow-brand transition-all duration-300">
+            <LogoIcon size={14} />
           </div>
           {(!collapsed || isMobile) && (
             <span className="text-[15px] font-bold tracking-tight text-zinc-900 dark:text-white whitespace-nowrap">

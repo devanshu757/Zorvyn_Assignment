@@ -497,6 +497,7 @@ export default function Dashboard() {
 
   const greetingHour = new Date().getHours();
   const greeting = greetingHour < 12 ? 'Good morning' : greetingHour < 17 ? 'Good afternoon' : 'Good evening';
+  const firstName = (localStorage.getItem('ft_session_name') ?? '').split(' ')[0] || 'there';
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -504,7 +505,7 @@ export default function Dashboard() {
       {/* ── Page greeting ───────────────────────────── */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight">{greeting} 👋</h2>
+          <h2 className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight">{greeting}, {firstName} 👋</h2>
           <p className="text-sm text-zinc-500 dark:text-zinc-400 font-medium mt-1">
             Your financial overview for <span className="text-brand-600 dark:text-brand-400 font-bold">{new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
           </p>

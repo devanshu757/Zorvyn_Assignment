@@ -1,250 +1,191 @@
-# FinTrack — Professional Finance Dashboard
+# FinTrack — Finance Dashboard UI
 
-A production-quality personal finance dashboard built with React 18, TypeScript, Tailwind CSS, and Recharts. Covers the full spectrum of personal finance management — authentication, multi-page navigation, real-time budgets, savings goals, bill tracking, accounts overview, advanced analytics, smart insights, and role-based access control — entirely client-side with no backend required.
+**Submitted by:** Devanshu Maru  
+**Email:** devanshumaru@gmail.com  
+**Role:** Frontend Developer Intern  
+**Assignment:** Finance Dashboard UI — Zorvyn Assignment Portal
 
 ---
 
-## Quick Start
+## What I Built
+
+FinTrack is a personal finance dashboard I built for this assignment. The idea was to create something that actually feels useful — not just a static mockup with some charts slapped together. A user should be able to open it, understand their financial situation at a glance, dig into transactions, track budgets and goals, and feel like the tool is working for them.
+
+It runs entirely in the browser with no backend. All data is stored in localStorage so nothing gets lost on refresh. I used React 18 with TypeScript, Tailwind CSS for styling, and Recharts for the charts.
+
+---
+
+## Getting Started
 
 ```bash
-# Install dependencies
 npm install
-
-# Start development server  (http://localhost:5173)
 npm run dev
+```
 
-# Production build
+That's it. Opens at `http://localhost:5173`.
+
+There are two demo accounts ready to go:
+
+| Role   | Email                  | Password    |
+|--------|------------------------|-------------|
+| Admin  | admin@fintrack.app     | Admin@123   |
+| Viewer | viewer@fintrack.app    | Viewer@123  |
+
+You can also register your own account from the login page — it'll be saved locally and default to the Viewer role.
+
+To build for production:
+
+```bash
 npm run build
-
-# Preview production build
 npm run preview
 ```
 
-**Demo credentials — available immediately:**
+---
 
-| Role   | Email                  | Password    | Access                              |
-|--------|------------------------|-------------|-------------------------------------|
-| Admin  | admin@fintrack.app     | Admin@123   | Full read + write across all pages  |
-| Viewer | viewer@fintrack.app    | Viewer@123  | Read-only across all pages          |
+## My Approach
 
-You can also register a new account — it is saved in localStorage and defaults to the Viewer role.
+I started by thinking about what a finance dashboard actually needs to do well. The assignment mentioned summary cards, transaction filtering, role-based UI, and insights — but I wanted to go beyond the minimum and build something that I'd actually want to use myself.
+
+A few decisions I made early on:
+
+**Sidebar layout over a top nav** — with 11 different sections, a top navbar would've felt cramped. A sidebar gives room to show section labels, badge counts, and still collapse down to icon-only mode when you need more space. It's also how most serious dashboards (Stripe, Linear, Notion) are structured.
+
+**Everything persisted to localStorage** — the assignment said persistence was optional but it felt wrong not to do it. If you set a budget or add a transaction and then refresh, losing that data kills the experience. I built a small `useLocalStorage` hook that handles the sync automatically.
+
+**65 seed transactions across 7 months** — I wanted the charts and insights to actually show something meaningful. A few dummy records wouldn't really demonstrate spending patterns, monthly comparisons, or category breakdowns. Having real-ish data across multiple months makes every feature feel alive.
+
+**TypeScript throughout** — it's a bit more upfront work but it catches so many issues early and makes the codebase much easier to reason about. All the data shapes are defined in `src/types/index.ts`.
 
 ---
 
-## Feature Overview
+## Pages and Features
 
-### 11 Pages
+### Dashboard
+The first thing you see after logging in. Shows four KPI cards (net balance, income, expenses, savings rate) each with a small sparkline chart underneath. There's a Financial Health Score displayed as an animated arc — it's a composite of your savings rate, how well you're sticking to budgets, and spending diversity. Below that are quick widgets for upcoming bills and goals progress, a budget status overview, and the seven most recent transactions.
 
-| Page          | Purpose                                                                 |
-|---------------|-------------------------------------------------------------------------|
-| **Dashboard** | Personalised greeting, 4 KPI cards with sparklines, Financial Health Score arc, upcoming bills widget, goals progress, quick actions, budget overview, recent transactions |
-| **Transactions** | Full transaction list with search, type/category/date filters, multi-field sort, month/category grouping, pagination, CSV/JSON export, add/edit/delete (admin) |
-| **Accounts**  | Net worth banner (assets − liabilities), account cards per type (checking/savings/investment/credit), inline balance editing (admin) |
-| **Bills**     | Urgency-sorted recurring payments, "Due today / Due in N days" labels, mark-as-paid toggles, monthly total summary, add/remove bills (admin) |
-| **Budgets**   | Monthly limits per expense category, colour-coded progress bars (green/amber/red), untracked-spending surface, add/edit/remove (admin) |
-| **Goals**     | Savings targets with circular progress rings, deadline countdowns, inline deposit logging, full CRUD (admin) |
-| **Reports**   | Cumulative savings area chart, spending donut chart, monthly summary table with sort, date-range filter (3m / 6m / all), CSV/JSON export |
-| **Insights**  | 4 KPI metrics, month-over-month income & expense change, 3-month cash flow forecast, automatic recurring transaction detection |
-| **Analytics** | Income vs Expenses bar chart, cumulative balance area chart, spending trend line chart, category breakdown pie, 3 financial health ratios, range selector (3M / 6M / 1Y / All) |
-| **Settings**  | Dark/light mode, currency selector, RBAC role switcher, notification preferences, data reset |
-| **Profile**   | Avatar picker, display name, account stats (income, expenses, role) |
+The greeting at the top uses your actual name and the time of day — small thing but it makes the app feel personal.
 
-### Core Features
+### Transactions
+Full transaction list with search, filters (by type, category, date range), sorting on any column, and grouping by month or category. Admins can add, edit, and delete. There's pagination and both CSV and JSON export. I added a proper empty state for when filters return nothing.
 
-- **Financial Health Score (0–100)** — Composite metric weighting savings rate (40%), budget adherence (30%), and spending diversity (30%). Displayed as an animated arc on the Dashboard.
-- **Live Notification System** — Bell icon with count badge; panel surfaces real alerts: budgets ≥ 80% spent and bills due within 5 days.
-- **Cmd/Ctrl + K Search** — Quick-navigation command palette accessible from any page.
-- **Collapsible Sidebar** — Collapses from 240px to 64px icon-only mode; state persisted in localStorage. Grouped navigation sections with live badge counts.
-- **Toast Feedback** — Success/error/info toasts on every mutating action (add, edit, delete, mark paid, balance update).
-- **Role-Based Access Control** — Viewer and Admin roles enforced at component level; all write actions are gated behind `role === 'admin'` checks.
-- **Dark Mode** — Full dark/light theme via Tailwind `dark:` variants, toggle in sidebar and Settings.
-- **CSV / JSON Export** — Available on Transactions and Reports pages.
-- **Recurring Transaction Detection** — Automatically identifies merchants appearing across 3+ months and estimates monthly cost.
-- **Cash Flow Forecast** — Projects next month's income, expenses, and net savings from the trailing 3-month average.
+### Accounts
+Shows your total net worth (assets minus liabilities) in a banner at the top, then account cards for each account type (checking, savings, investment, credit). Admins can click on the balance to edit it inline — no modal needed for something that simple.
 
----
+### Bills
+Recurring payments sorted by urgency. Anything due today shows in red, due within two days in amber. Admins can mark bills as paid and add/remove them. There's also a monthly total so you know exactly what's going out every month.
 
-## Architecture
+### Budgets
+Category-based monthly spending limits. The progress bars go green → amber → red as you approach and exceed the limit. Categories you're spending in but haven't budgeted for show up separately so nothing falls through the cracks.
 
-### Directory Structure
+### Goals
+Savings targets with circular progress rings. Each goal has a deadline countdown. Admins can log deposits directly from the goal card. The ring animates as progress increases.
 
-```
-src/
-├── components/
-│   ├── common/
-│   │   ├── Badge.tsx          # Income/expense/neutral variant badge
-│   │   ├── Card.tsx           # Base card container with hover effects
-│   │   ├── EmptyState.tsx     # Empty state component
-│   │   ├── Modal.tsx          # Accessible modal with Esc-to-close
-│   │   └── Skeleton.tsx       # Dashboard and table loading skeletons
-│   ├── dashboard/
-│   │   ├── BalanceTrendChart.tsx
-│   │   ├── SpendingBreakdownChart.tsx
-│   │   └── SummaryCards.tsx
-│   ├── layout/
-│   │   ├── Sidebar.tsx        # Collapsible sidebar with badge system
-│   │   └── TopHeader.tsx      # Notification panel + Cmd+K search
-│   └── transactions/
-│       ├── AddEditModal.tsx   # Add/edit transaction form modal
-│       └── TransactionFilters.tsx
-├── context/
-│   ├── AppContext.tsx         # Global state: transactions, budgets, goals,
-│   │                          #   accounts, bills, filters, sort, role, theme
-│   └── ToastContext.tsx       # Toast notification queue
-├── data/
-│   └── mockData.ts            # 65 mock transactions (Oct 2025 – Apr 2026),
-│                              #   4 mock accounts, 9 mock bills, category colours
-├── hooks/
-│   ├── useLocalStorage.ts     # Two-way localStorage sync hook
-│   └── useMockApi.ts          # Simulated API delay for skeleton UX
-├── pages/
-│   ├── Accounts.tsx           # Net worth + account cards
-│   ├── Analytics.tsx          # Advanced multi-chart analytics
-│   ├── Bills.tsx              # Recurring payments tracker
-│   ├── Budgets.tsx            # Monthly category limits
-│   ├── Dashboard.tsx          # Overview + widgets
-│   ├── Goals.tsx              # Savings targets
-│   ├── Insights.tsx           # Smart observations + forecast
-│   ├── Login.tsx              # Auth (login + signup)
-│   ├── Profile.tsx            # User profile
-│   ├── Reports.tsx            # Charts + monthly table
-│   ├── Settings.tsx           # Preferences
-│   └── Transactions.tsx       # Full transaction list
-├── types/
-│   └── index.ts               # All TypeScript interfaces and union types
-└── utils/
-    └── helpers.ts             # Formatting, filtering, sorting, export, analytics
-```
+### Reports
+A more detailed look at savings trends over time (area chart), spending breakdown by category (donut chart), and a sortable monthly summary table. You can filter by the last 3 months, 6 months, or all time. CSV and JSON export work here too.
 
-### Layout
+### Insights
+This was one of the more interesting pages to build. It automatically detects recurring transactions by finding merchants that appear across 3 or more separate calendar months — no tagging required. It also projects next month's income, expenses, and net savings based on a rolling 3-month average. Month-over-month income and expense changes are shown with clear directional indicators.
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  Sidebar (240px / 64px collapsed)  │  TopHeader (52px)  │
-│  ─ Logo                            │  ─ Page title      │
-│  ─ Nav sections with badges        │  ─ Search (Cmd+K)  │
-│  ─ Settings / theme / user         │  ─ Notifications   │
-│                                    ├────────────────────│
-│                                    │  Page content      │
-│                                    │  (scrollable)      │
-└────────────────────────────────────┴────────────────────┘
-```
+### Analytics
+Deeper charting — income vs expenses bar chart, cumulative balance over time, a spending trend line, and a category breakdown pie chart. There's a date range selector (3M / 6M / 1Y / All) that adjusts all charts together. Three financial health ratios (savings rate, expense-to-income, budget adherence) give a quick numeric read.
 
----
+### Settings
+Dark/light mode toggle, currency selector (USD, EUR, GBP, INR, JPY, CAD, AUD — actually changes the formatting everywhere, not just the label), role switcher for demo purposes, notification preference toggles (persisted), and a data reset option.
 
-## State Management
-
-All state lives in `AppContext` (React Context API) with automatic localStorage persistence via a custom `useLocalStorage` hook.
-
-```
-AppContext
-├── transactions[]        — 65 seed records; fully editable by admins
-├── budgets[]             — per-category monthly limits
-├── goals[]               — savings targets (amount, deadline, icon, colour)
-├── accounts[]            — bank/investment/credit accounts
-├── bills[]               — recurring payment definitions
-├── filters / sort        — active filter + sort for Transactions page
-├── role                  — 'admin' | 'viewer'
-├── theme                 — 'light' | 'dark'
-└── currentPage           — active page (client-side router)
-```
-
-**Why no Redux / Zustand?** The state is flat, co-located, and the relationships are simple enough that Context + a custom hook handles everything without the overhead of an external library. If the app grew to dozens of pages with complex cross-cutting state, that would be the right time to introduce a dedicated store.
-
-**localStorage keys:**
-
-| Key | Contents |
-|-----|----------|
-| `ft_transactions` | Transaction array |
-| `ft_budgets` | Budget definitions |
-| `ft_goals` | Savings goals |
-| `ft_accounts` | Account list |
-| `ft_bills` | Bill list |
-| `ft_filters` | Active filter state |
-| `ft_sort` | Active sort state |
-| `ft_role` | Current role |
-| `ft_theme` | Current theme |
-| `ft_page` | Current page |
-| `ft_session` | Login flag |
-| `ft_session_name` | Logged-in user's name |
-| `ft_sidebar_collapsed` | Sidebar collapse state |
-| `ft_avatar` | Selected avatar emoji |
-| `ft_registered_users` | Custom registered accounts |
+### Profile
+Avatar picker, display name, and a summary of your account stats. Simple but complete.
 
 ---
 
 ## Role-Based Access Control
 
-| Capability | Viewer | Admin |
-|------------|--------|-------|
-| View all 11 pages | ✓ | ✓ |
-| Add / edit / delete transactions | — | ✓ |
-| Set / edit / remove budgets | — | ✓ |
-| Create / edit / delete savings goals | — | ✓ |
-| Log goal deposits | — | ✓ |
-| Edit account balances | — | ✓ |
-| Add / remove bills | — | ✓ |
-| Mark bills as paid | — | ✓ |
+The assignment asked for a simulated frontend RBAC, so here's how it works:
 
-Roles are enforced with `role === 'admin'` guards at the component level — not just hidden UI but the action buttons themselves are never rendered for Viewer sessions. Switching role in Settings updates context immediately without a page reload.
+Viewer accounts can see everything but can't change anything. The add/edit/delete buttons simply don't render — they're not hidden with `display:none` or disabled, just not there. That keeps the UI clean for read-only users.
+
+Admin accounts get full write access across all pages: adding and editing transactions, creating and editing budgets and goals, managing bills, editing account balances, and marking bills as paid.
+
+You can switch roles in Settings, or log in with the respective demo account. Role is persisted in localStorage so it survives a refresh.
 
 ---
 
-## Design System
+## State Management
 
-### Tech
-- **Tailwind CSS 3** — utility-first, `dark:` variants, responsive prefixes (`sm:`, `md:`, `lg:`)
-- **Inter** — primary font via Google Fonts
-- **lucide-react** — consistent SVG icon set
+Everything lives in a single `AppContext` using React's built-in Context API. I considered Zustand but the state is flat enough that it felt like unnecessary overhead. The context holds:
 
-### Color palette
-- **Brand (Violet/Indigo)** — primary actions, active nav, gradients
-- **Emerald** — income, positive values, success states
-- **Rose** — expenses, over-budget alerts, destructive actions
-- **Amber** — warnings (budget ≥ 75%, bills due soon)
-- **Zinc** — neutral text, borders, backgrounds (light and dark)
+- All data arrays (transactions, budgets, goals, accounts, bills)
+- Active filters and sort state for the Transactions page
+- The current page (used as a client-side router)
+- Theme, role, and currency preferences
 
-### Component classes (global in `index.css`)
-```css
-.card         — base card (white bg, border, shadow)
-.card-hover   — card + hover lift
-.btn-primary  — brand-coloured filled button
-.btn-secondary — neutral outlined button
-.btn-ghost    — no-background text button
-.input-base   — consistent form input styling
-.nav-item     — sidebar navigation item base
-.nav-item-active — active nav item highlight
-.badge        — pill badge
-.tabular      — tabular-nums font variant
-```
+Every action (add, update, delete) is wrapped in `useCallback` to avoid unnecessary re-renders. State is synced to localStorage through a custom `useLocalStorage` hook that mirrors the standard `useState` API so it's completely transparent to use.
+
+The currency selector is wired to a module-level variable in `helpers.ts` that the `formatCurrency` function reads from. When the user changes currency in Settings, all formatted values across every page update immediately — no prop-drilling needed.
 
 ---
 
-## Key Design Decisions
+## Design Decisions Worth Mentioning
 
-**Sidebar over top navbar** — For a dashboard with 11 pages grouped into sections, a sidebar gives better scanability, more room for nav labels and badge counts, and aligns with how enterprise finance tools (Stripe, Linear, Notion) are structured.
+**Financial Health Score** — I wanted a single number that gives people an honest read on their situation. It's weighted: savings rate counts for 40% (the most impactful lever), budget adherence for 30%, and spending diversity for 30%. The arc animates when you first load the dashboard.
 
-**Financial Health Score** — A single 0–100 composite metric gives users an immediate sense of their financial position. The three factors (savings rate, budget adherence, spending diversity) cover fundamentally different aspects of financial health, and the weightings (40 / 30 / 30) reflect the relative importance of savings as the primary lever.
+**Command palette (⌘K)** — Lets you navigate to any page instantly from anywhere. Results are grouped by section with icons, has a clear button, and a footer showing the keyboard shortcuts. Felt like a nice touch for a dashboard you'd use daily.
 
-**Automatic recurring detection** — No configuration needed. The algorithm finds merchants appearing in 3+ different calendar months and surfaces them as likely recurring costs. This is genuinely useful and hard to replicate with manual tagging.
+**Skeleton screens** — The dashboard and a few heavy pages show shimmer placeholders for 600ms before rendering. It's simulated latency, but it demonstrates that the app handles loading states properly rather than just flashing blank content.
 
-**Notification system driven from data** — Rather than storing notifications, they are computed fresh from state on every render. Budget and bill alerts are always accurate and never go stale.
+**Notification system** — Budget alerts (≥80% spent) and upcoming bills (≤5 days) are computed fresh from state on every render. There's no separate notification store to go stale — the bell badge count is always accurate.
 
-**Mock API delay with skeletons** — The `useMockApi` hook introduces a 600ms simulated latency on first load of heavy pages, showing skeleton screens. This demonstrates realistic loading-state UX without needing a real backend.
+**Toast feedback** — Every write action gives immediate confirmation. Adding a transaction, editing a balance, marking a bill paid — all produce a small toast in the corner so you always know something happened.
 
-**localStorage auth** — The seeded accounts are hard-coded constants, not stored in localStorage, so they survive a full storage clear. Custom-registered accounts are stored separately. A real deployment would swap this layer for a proper auth service; the shape of `onLogin(name: string)` and `role: Role` in context would make that migration straightforward.
+---
+
+## What I'd Add With More Time
+
+Honestly there are a few things I ran out of time for:
+
+- A proper multi-account transaction split view
+- Chart annotations (e.g. marking when a budget was set)
+- A proper search that covers transactions, not just page navigation
+- Print/PDF export for reports
+- Mobile-specific bottom nav instead of the hamburger drawer
+
+The codebase is set up in a way that adding these wouldn't require major restructuring, which was intentional.
 
 ---
 
 ## Tech Stack
 
-| Layer | Choice | Version |
-|-------|--------|---------|
-| Framework | React | 18.2.0 |
-| Language | TypeScript | 5.2.2 |
-| Bundler | Vite | 5.0.8 |
-| Styling | Tailwind CSS | 3.4.0 |
-| Charts | Recharts | 2.10.3 |
-| Icons | lucide-react | 0.309.0 |
-| State | React Context + custom hooks | — |
-| Persistence | localStorage | — |
+| | |
+|--|--|
+| Framework | React 18 with TypeScript |
+| Bundler | Vite |
+| Styling | Tailwind CSS 3 |
+| Charts | Recharts |
+| Icons | lucide-react |
+| State | React Context + custom hooks |
+| Persistence | localStorage |
+
+---
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── common/        # Card, Badge, Modal, EmptyState, Skeleton
+│   ├── dashboard/     # Sparklines, summary cards, charts
+│   ├── layout/        # Sidebar, TopHeader (with command palette)
+│   └── transactions/  # Filter bar, add/edit modal
+├── context/
+│   ├── AppContext.tsx  # All global state and actions
+│   └── ToastContext.tsx
+├── data/
+│   └── mockData.ts    # 65 transactions, 4 accounts, 9 bills, colours
+├── hooks/
+│   ├── useLocalStorage.ts
+│   └── useMockApi.ts
+├── pages/             # One file per page, 11 total
+├── types/
+│   └── index.ts       # All interfaces and union types
+└── utils/
+    └── helpers.ts     # Formatting, filtering, sorting, analytics, export
+```

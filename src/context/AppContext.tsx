@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useCallback } from 'react';
+import React, { createContext, useContext, useCallback, useEffect } from 'react';
 import { Transaction, FilterState, SortState, Role, Page, Theme, Budget, Goal, Account, Bill } from '../types';
 import { mockTransactions, mockAccounts, mockBills } from '../data/mockData';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { generateId } from '../utils/helpers';
+import { generateId, setActiveCurrency } from '../utils/helpers';
 
 interface AppContextType {
   transactions: Transaction[];
@@ -15,6 +15,8 @@ interface AppContextType {
   goals: Goal[];
   accounts: Account[];
   bills: Bill[];
+  currency: string;
+  setCurrency: (c: string) => void;
   addTransaction: (t: Omit<Transaction, 'id'>) => void;
   updateTransaction: (id: string, t: Omit<Transaction, 'id'>) => void;
   deleteTransaction: (id: string) => void;
@@ -58,6 +60,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [goals, setGoals] = useLocalStorage<Goal[]>('ft_goals', []);
   const [accounts, setAccounts] = useLocalStorage<Account[]>('ft_accounts', mockAccounts);
   const [bills, setBills] = useLocalStorage<Bill[]>('ft_bills', mockBills);
+  const [currency, setCurrencyState] = useLocalStorage<string>('ft_currency', 'USD');
+
+  // Sync currency to the helpers module so formatCurrency stays reactive
+  useEffect(() => { setActiveCurrency(currency); }, [currency]);
+
+  const setCurrency = useCallback((c: string) => {
+    setActiveCurrency(c);
+    setCurrencyState(c);
+  }, [setCurrencyState]);
 
   const addTransaction = useCallback((t: Omit<Transaction, 'id'>) => {
     setTransactions((prev) => [{ ...t, id: generateId() }, ...prev]);
@@ -128,6 +139,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       value={{
         transactions, filters, sort, role, theme, currentPage,
         budgets, goals, accounts, bills,
+        currency, setCurrency,
         addTransaction, updateTransaction, deleteTransaction,
         setFilters, resetFilters, setSort, setRole, toggleTheme, setPage,
         setBudget, removeBudget,

@@ -42,10 +42,20 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
 }
 
 export default function Settings() {
-  const { theme, toggleTheme, role, setRole, transactions, setPage } = useApp();
-  const [notifications, setNotifications] = useState({ budgetAlerts: true, weeklyDigest: false, goalReminders: true });
-  const [currency, setCurrency] = useState('USD');
+  const { theme, toggleTheme, role, setRole, transactions, setPage, currency, setCurrency } = useApp();
+  const [notifications, setNotifications] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ft_notifications');
+      return saved ? JSON.parse(saved) : { budgetAlerts: true, weeklyDigest: false, goalReminders: true };
+    } catch { return { budgetAlerts: true, weeklyDigest: false, goalReminders: true }; }
+  });
   const [resetConfirm, setResetConfirm] = useState(false);
+
+  function updateNotification(key: string, value: boolean) {
+    const next = { ...notifications, [key]: value };
+    setNotifications(next);
+    localStorage.setItem('ft_notifications', JSON.stringify(next));
+  }
 
   function handleReset() {
     localStorage.removeItem('ft_transactions');
@@ -99,13 +109,13 @@ export default function Settings() {
       {/* Notifications */}
       <Section title="Notifications" description="Control which alerts and digests you receive">
         <Row label="Budget Alerts" description="Notify when spending exceeds 80% of a budget">
-          <Toggle checked={notifications.budgetAlerts} onChange={(v) => setNotifications((p) => ({ ...p, budgetAlerts: v }))} />
+          <Toggle checked={notifications.budgetAlerts} onChange={(v) => updateNotification('budgetAlerts', v)} />
         </Row>
         <Row label="Weekly Digest" description="Summary email every Monday morning">
-          <Toggle checked={notifications.weeklyDigest} onChange={(v) => setNotifications((p) => ({ ...p, weeklyDigest: v }))} />
+          <Toggle checked={notifications.weeklyDigest} onChange={(v) => updateNotification('weeklyDigest', v)} />
         </Row>
         <Row label="Goal Reminders" description="Remind when a savings goal deadline is approaching">
-          <Toggle checked={notifications.goalReminders} onChange={(v) => setNotifications((p) => ({ ...p, goalReminders: v }))} />
+          <Toggle checked={notifications.goalReminders} onChange={(v) => updateNotification('goalReminders', v)} />
         </Row>
       </Section>
 
