@@ -1,6 +1,17 @@
 export type TransactionType = 'income' | 'expense';
 export type Role = 'viewer' | 'admin';
-export type Page = 'dashboard' | 'transactions' | 'insights';
+export type Page =
+  | 'dashboard'
+  | 'transactions'
+  | 'accounts'
+  | 'bills'
+  | 'budgets'
+  | 'goals'
+  | 'reports'
+  | 'insights'
+  | 'analytics'
+  | 'settings'
+  | 'profile';
 export type Theme = 'light' | 'dark';
 export type SortField = 'date' | 'amount' | 'category' | 'description';
 export type SortDirection = 'asc' | 'desc';
@@ -49,4 +60,43 @@ export interface SummaryStats {
   transactionCount: number;
   incomeChange: number;
   expenseChange: number;
+}
+
+export interface Budget {
+  category: string;
+  limit: number;
+}
+
+export interface Goal {
+  id: string;
+  name: string;
+  targetAmount: number;
+  savedAmount: number;
+  deadline: string;
+  icon: string;
+  color: string;
+}
+
+export type AccountType = 'checking' | 'savings' | 'investment' | 'credit';
+
+export interface Account {
+  id: string;
+  name: string;
+  type: AccountType;
+  balance: number;
+  institution: string;
+  color: string;
+  lastFour: string;
+}
+
+export interface Bill {
+  id: string;
+  name: string;
+  amount: number;
+  dueDay: number;
+  category: string;
+  icon: string;
+  isActive: boolean;
+  color: string;
+  isPaid?: boolean;
 }

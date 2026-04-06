@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
-import { TrendingUp, TrendingDown, Award, AlertCircle, Sparkles } from 'lucide-react';
+import { TrendingUp, TrendingDown, Award, AlertCircle, Sparkles, RefreshCw, Zap } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { computeMonthlyData, computeCategoryStats, formatCurrency } from '../utils/helpers';
 import Card from '../components/common/Card';
@@ -11,7 +11,7 @@ import Card from '../components/common/Card';
 function CustomTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl p-3 shadow-lg text-xs">
+    <div className="bg-white dark:bg-navy-800 border border-zinc-200 dark:border-navy-700 rounded-xl p-3 shadow-lg text-xs">
       <p className="font-semibold text-zinc-700 dark:text-zinc-300 mb-2">{label}</p>
       {payload.map((e: { color: string; name: string; value: number }) => (
         <div key={e.name} className="flex items-center gap-2 mb-1">
@@ -56,6 +56,48 @@ export default function Insights() {
     ? Math.round(monthly.reduce((s, m) => s + m.income, 0) / monthly.length)
     : 0;
 
+  // Cash flow forecast: average of last 3 full months
+  const forecast = useMemo(() => {
+    if (monthly.length < 2) return null;
+    const recent = monthly.slice(-3);
+    const avgIncome = Math.round(recent.reduce((s, m) => s + m.income, 0) / recent.length);
+    const avgExpenses = Math.round(recent.reduce((s, m) => s + m.expenses, 0) / recent.length);
+    const projected = avgIncome - avgExpenses;
+    const trend = monthly.length >= 2
+      ? monthly[monthly.length - 1].expenses - monthly[monthly.length - 2].expenses
+      : 0;
+    return { avgIncome, avgExpenses, projected, trend, months: recent.length };
+  }, [monthly]);
+
+  // Recurring transactions: merchants appearing in 3+ distinct months
+  const recurring = useMemo(() => {
+    const merchantMonths: Record<string, Set<string>> = {};
+    const merchantTotal: Record<string, number> = {};
+    const merchantCount: Record<string, number> = {};
+    const merchantCategory: Record<string, string> = {};
+
+    transactions
+      .filter((t) => t.type === 'expense')
+      .forEach((t) => {
+        const m = t.date.slice(0, 7);
+        if (!merchantMonths[t.merchant]) merchantMonths[t.merchant] = new Set();
+        merchantMonths[t.merchant].add(m);
+        merchantTotal[t.merchant] = (merchantTotal[t.merchant] ?? 0) + t.amount;
+        merchantCount[t.merchant] = (merchantCount[t.merchant] ?? 0) + 1;
+        merchantCategory[t.merchant] = t.category;
+      });
+
+    return Object.entries(merchantMonths)
+      .filter(([, months]) => months.size >= 3)
+      .map(([merchant, months]) => ({
+        merchant,
+        months: months.size,
+        avgAmount: Math.round(merchantTotal[merchant] / merchantCount[merchant]),
+        category: merchantCategory[merchant],
+      }))
+      .sort((a, b) => b.months - a.months);
+  }, [transactions]);
+
   const observations = useMemo(() => {
     const obs: { icon: React.ReactNode; text: string; variant: 'positive' | 'negative' | 'neutral' }[] = [];
 
@@ -79,11 +121,6 @@ export default function Insights() {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-xl font-bold text-zinc-900 dark:text-white">Insights</h1>
-        <p className="text-sm text-zinc-400 dark:text-zinc-500 mt-0.5">Patterns and observations from your financial data</p>
-      </div>
-
       {/* KPI row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
@@ -197,6 +234,78 @@ export default function Insights() {
                 {monthOverMonth.expenseChange >= 0 ? '+' : ''}{formatCurrency(monthOverMonth.expenseChange)}
               </p>
             </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Cash Flow Forecast */}
+      {forecast && (
+        <Card className="p-5">
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <h2 className="text-sm font-semibold text-zinc-900 dark:text-white">Cash Flow Forecast</h2>
+              <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">Projected next month based on last {forecast.months}-month average</p>
+            </div>
+            <Zap size={15} className="text-amber-400 flex-shrink-0 mt-0.5" />
+          </div>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="p-4 bg-zinc-50 dark:bg-zinc-700/40 rounded-xl text-center">
+              <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-1">Est. Income</p>
+              <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(forecast.avgIncome)}</p>
+            </div>
+            <div className="p-4 bg-zinc-50 dark:bg-zinc-700/40 rounded-xl text-center">
+              <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-1">Est. Expenses</p>
+              <p className="text-xl font-bold text-rose-600 dark:text-rose-400">{formatCurrency(forecast.avgExpenses)}</p>
+            </div>
+            <div className="p-4 bg-zinc-50 dark:bg-zinc-700/40 rounded-xl text-center">
+              <p className="text-xs text-zinc-400 dark:text-zinc-500 mb-1">Projected Net</p>
+              <p className={`text-xl font-bold ${forecast.projected >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                {forecast.projected >= 0 ? '+' : ''}{formatCurrency(forecast.projected)}
+              </p>
+            </div>
+          </div>
+          {forecast.trend !== 0 && (
+            <div className={`mt-4 flex items-center gap-2 text-xs px-3 py-2 rounded-lg ${forecast.trend > 0 ? 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400' : 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400'}`}>
+              {forecast.trend > 0 ? <TrendingUp size={13} /> : <TrendingDown size={13} />}
+              Expenses are trending {forecast.trend > 0 ? 'up' : 'down'} — last month changed by {forecast.trend > 0 ? '+' : ''}{formatCurrency(forecast.trend)} vs the month before.
+            </div>
+          )}
+        </Card>
+      )}
+
+      {/* Recurring Transactions */}
+      {recurring.length > 0 && (
+        <Card className="p-5">
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <h2 className="text-sm font-semibold text-zinc-900 dark:text-white">Recurring Transactions</h2>
+              <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">Merchants appearing consistently across months</p>
+            </div>
+            <RefreshCw size={14} className="text-zinc-300 dark:text-zinc-600 flex-shrink-0 mt-0.5" />
+          </div>
+          <div className="space-y-2">
+            {recurring.map((r) => (
+              <div key={r.merchant} className="flex items-center justify-between py-2.5 px-3 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-700/40 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-700 flex items-center justify-center flex-shrink-0">
+                    <RefreshCw size={12} className="text-zinc-500 dark:text-zinc-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{r.merchant}</p>
+                    <p className="text-xs text-zinc-400 dark:text-zinc-500">{r.category} · seen {r.months} months</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-rose-600 dark:text-rose-400">~{formatCurrency(r.avgAmount)}/mo</p>
+                  <p className="text-xs text-zinc-400 dark:text-zinc-500">avg per transaction</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 pt-3 border-t border-zinc-100 dark:border-navy-700">
+            <p className="text-xs text-zinc-400 dark:text-zinc-500">
+              Estimated monthly recurring spend: <span className="font-semibold text-zinc-700 dark:text-zinc-300">{formatCurrency(recurring.reduce((s, r) => s + r.avgAmount, 0))}</span>
+            </p>
           </div>
         </Card>
       )}

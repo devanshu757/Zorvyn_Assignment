@@ -1,4 +1,23 @@
-import { Transaction } from '../types';
+import { Transaction, Account, Bill } from '../types';
+
+export const mockAccounts: Account[] = [
+  { id: 'acc1', name: 'Primary Checking', type: 'checking', balance: 12450.30, institution: 'Chase Bank', color: '#3b82f6', lastFour: '4521' },
+  { id: 'acc2', name: 'High-Yield Savings', type: 'savings', balance: 28750.00, institution: 'Marcus by GS', color: '#10b981', lastFour: '8834' },
+  { id: 'acc3', name: 'Investment Portfolio', type: 'investment', balance: 45200.00, institution: 'Fidelity', color: '#8b5cf6', lastFour: '0012' },
+  { id: 'acc4', name: 'Visa Platinum', type: 'credit', balance: -2340.50, institution: 'Capital One', color: '#f43f5e', lastFour: '7291' },
+];
+
+export const mockBills: Bill[] = [
+  { id: 'bill1', name: 'Monthly Rent', amount: 1800, dueDay: 1, category: 'Housing', icon: '🏠', isActive: true, color: '#6366f1' },
+  { id: 'bill2', name: 'Power Grid Co.', amount: 95, dueDay: 15, category: 'Utilities', icon: '⚡', isActive: true, color: '#f59e0b' },
+  { id: 'bill3', name: 'City Water', amount: 45, dueDay: 20, category: 'Utilities', icon: '💧', isActive: true, color: '#06b6d4' },
+  { id: 'bill4', name: 'Fiber Internet', amount: 60, dueDay: 12, category: 'Utilities', icon: '📡', isActive: true, color: '#3b82f6' },
+  { id: 'bill5', name: 'City Transit Pass', amount: 42, dueDay: 5, category: 'Transportation', icon: '🚇', isActive: true, color: '#f59e0b' },
+  { id: 'bill6', name: 'Netflix', amount: 15, dueDay: 8, category: 'Subscriptions', icon: '🎬', isActive: true, color: '#ef4444' },
+  { id: 'bill7', name: 'Spotify', amount: 10, dueDay: 22, category: 'Subscriptions', icon: '🎵', isActive: true, color: '#1db954' },
+  { id: 'bill8', name: 'Gym Membership', amount: 45, dueDay: 1, category: 'Healthcare', icon: '💪', isActive: true, color: '#10b981' },
+  { id: 'bill9', name: 'Health Insurance', amount: 220, dueDay: 28, category: 'Healthcare', icon: '🏥', isActive: true, color: '#ec4899' },
+];
 
 export const CATEGORIES = {
   expense: [
