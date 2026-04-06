@@ -20,7 +20,7 @@ const ACCOUNT_META: Record<AccountType, { label: string; icon: React.ElementType
 
 /* ── Inline balance editor ────────────────────────────── */
 function BalanceEditor({
-  accountId,
+  accountId: _accountId,
   current,
   onSave,
   onCancel,

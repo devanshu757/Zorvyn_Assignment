@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import {
   BarChart, Bar, AreaChart, Area, LineChart, Line,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  Legend, PieChart, Pie, Cell,
+  PieChart, Pie, Cell,
 } from 'recharts';
 import { TrendingUp, TrendingDown, Minus, DollarSign, Activity, BarChart3 } from 'lucide-react';
 import Card from '../components/common/Card';
@@ -59,7 +59,7 @@ export default function Analytics() {
   const { transactions } = useApp();
   const [range, setRange] = useState<Range>('6m');
 
-  const { monthlyData, filteredMonthly, categoryData, stats } = useMemo(() => {
+  const { filteredMonthly, categoryData, stats } = useMemo(() => {
     const all = computeMonthlyData(transactions);
     const now  = new Date();
 
