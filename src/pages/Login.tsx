@@ -135,7 +135,7 @@ export default function Login({ onLogin }: Props) {
         <div className="absolute bottom-0 right-0 w-[28rem] h-[28rem] bg-brand-800/25 rounded-full blur-3xl pointer-events-none translate-x-1/3 translate-y-1/3" />
         <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-sky-600/10 rounded-full blur-3xl pointer-events-none -translate-x-1/2 -translate-y-1/2" />
 
-        <div className="relative z-10 flex flex-col h-full px-12 py-10">
+        <div className="relative z-10 flex flex-col flex-1 px-12 py-10">
           {/* Logo */}
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center shadow-lg">
